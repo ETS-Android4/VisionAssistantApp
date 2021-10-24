@@ -212,6 +212,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             }
 
             tracker.trackResults(mappedRecognitions, currTimestamp);
+            toSpeech(mappedRecognitions);
             trackingOverlay.postInvalidate();
 
             computingDetection = false;
@@ -242,7 +243,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   // Which detection model to use: by default uses Tensorflow Object Detection API frozen
   // checkpoints.
   private enum DetectorMode {
-    TF_OD_API;
+    TF_OD_API
   }
 
   @Override

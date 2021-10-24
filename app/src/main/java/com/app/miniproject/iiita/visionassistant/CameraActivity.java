@@ -34,9 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
+import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
@@ -47,13 +45,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import java.nio.ByteBuffer;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.app.miniproject.iiita.visionassistant.env.ImageUtils;
 import com.app.miniproject.iiita.visionassistant.env.Logger;
+import com.app.miniproject.iiita.visionassistant.tflite.Detector;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
@@ -67,12 +73,12 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   protected int previewWidth = 0;
   protected int previewHeight = 0;
-  private boolean debug = false;
+  private final boolean debug = false;
   private Handler handler;
   private HandlerThread handlerThread;
   private boolean useCamera2API;
   private boolean isProcessingFrame = false;
-  private byte[][] yuvBytes = new byte[3][];
+  private final byte[][] yuvBytes = new byte[3][];
   private int[] rgbBytes = null;
   private int yRowStride;
   private Runnable postInferenceCallback;
@@ -87,86 +93,8 @@ public abstract class CameraActivity extends AppCompatActivity
   private ImageView plusImageView, minusImageView;
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
-
-  @Override
-  protected void onCreate(final Bundle savedInstanceState) {
-    LOGGER.d("onCreate " + this);
-    super.onCreate(null);
-    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-    setContentView(R.layout.tfe_od_activity_camera);
-
-    if (hasPermission()) {
-      setFragment();
-    } else {
-      requestPermission();
-    }
-
-    threadsTextView = findViewById(R.id.threads);
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
-    apiSwitchCompat = findViewById(R.id.api_info_switch);
-    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
-    gestureLayout = findViewById(R.id.gesture_layout);
-    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
-    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
-
-    ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
-    vto.addOnGlobalLayoutListener(
-        new ViewTreeObserver.OnGlobalLayoutListener() {
-          @Override
-          public void onGlobalLayout() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-              gestureLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            } else {
-              gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-            //                int width = bottomSheetLayout.getMeasuredWidth();
-            int height = gestureLayout.getMeasuredHeight();
-
-            sheetBehavior.setPeekHeight(height);
-          }
-        });
-    sheetBehavior.setHideable(false);
-
-    sheetBehavior.setBottomSheetCallback(
-        new BottomSheetBehavior.BottomSheetCallback() {
-          @Override
-          public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            switch (newState) {
-              case BottomSheetBehavior.STATE_HIDDEN:
-                break;
-              case BottomSheetBehavior.STATE_EXPANDED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
-                }
-                break;
-              case BottomSheetBehavior.STATE_COLLAPSED:
-                {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                }
-                break;
-              case BottomSheetBehavior.STATE_DRAGGING:
-                break;
-              case BottomSheetBehavior.STATE_SETTLING:
-                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
-                break;
-            }
-          }
-
-          @Override
-          public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
-        });
-
-    frameValueTextView = findViewById(R.id.frame_info);
-    cropValueTextView = findViewById(R.id.crop_info);
-    inferenceTimeTextView = findViewById(R.id.inference_info);
-
-    apiSwitchCompat.setOnCheckedChangeListener(this);
-
-    plusImageView.setOnClickListener(this);
-    minusImageView.setOnClickListener(this);
-  }
+  private TextToSpeech textToSpeech;
+  private List<Detector.Recognition> currentRecognitions;
 
   protected int[] getRgbBytes() {
     imageConverter.run();
@@ -307,19 +235,93 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   @Override
-  public synchronized void onPause() {
-    LOGGER.d("onPause " + this);
+  protected void onCreate(final Bundle savedInstanceState) {
+    LOGGER.d("onCreate " + this);
+    super.onCreate(null);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-    handlerThread.quitSafely();
-    try {
-      handlerThread.join();
-      handlerThread = null;
-      handler = null;
-    } catch (final InterruptedException e) {
-      LOGGER.e(e, "Exception!");
+    setContentView(R.layout.tfe_od_activity_camera);
+
+    this.textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+      @Override
+      public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+          LOGGER.i("onCreate", "TextToSpeech is initialised");
+        } else {
+          LOGGER.e("onCreate", "Cannot initialise text to speech!");
+        }
+      }
+    });
+
+    if (hasPermission()) {
+      setFragment();
+    } else {
+      requestPermission();
     }
 
-    super.onPause();
+    threadsTextView = findViewById(R.id.threads);
+    plusImageView = findViewById(R.id.plus);
+    minusImageView = findViewById(R.id.minus);
+    apiSwitchCompat = findViewById(R.id.api_info_switch);
+    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
+    gestureLayout = findViewById(R.id.gesture_layout);
+    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
+    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+
+    ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
+    vto.addOnGlobalLayoutListener(
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+              @Override
+              public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                  gestureLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                  gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                //                int width = bottomSheetLayout.getMeasuredWidth();
+                int height = gestureLayout.getMeasuredHeight();
+
+                sheetBehavior.setPeekHeight(height);
+              }
+            });
+    sheetBehavior.setHideable(false);
+
+    sheetBehavior.setBottomSheetCallback(
+            new BottomSheetBehavior.BottomSheetCallback() {
+              @Override
+              public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch (newState) {
+                  case BottomSheetBehavior.STATE_HIDDEN:
+                    break;
+                  case BottomSheetBehavior.STATE_EXPANDED: {
+                    bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
+                  }
+                  break;
+                  case BottomSheetBehavior.STATE_COLLAPSED: {
+                    bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                  }
+                  break;
+                  case BottomSheetBehavior.STATE_DRAGGING:
+                    break;
+                  case BottomSheetBehavior.STATE_SETTLING:
+                    bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                    break;
+                }
+              }
+
+              @Override
+              public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+              }
+            });
+
+    frameValueTextView = findViewById(R.id.frame_info);
+    cropValueTextView = findViewById(R.id.crop_info);
+    inferenceTimeTextView = findViewById(R.id.inference_info);
+
+    apiSwitchCompat.setOnCheckedChangeListener(this);
+
+    plusImageView.setOnClickListener(this);
+    minusImageView.setOnClickListener(this);
   }
 
   @Override
@@ -521,6 +523,94 @@ public abstract class CameraActivity extends AppCompatActivity
       threadsTextView.setText(String.valueOf(numThreads));
       setNumThreads(numThreads);
     }
+  }
+
+  @Override
+  public synchronized void onPause() {
+    LOGGER.d("onPause " + this);
+
+    handlerThread.quitSafely();
+    try {
+      handlerThread.join();
+      handlerThread = null;
+      handler = null;
+    } catch (final InterruptedException e) {
+      LOGGER.e(e, "Exception!");
+    }
+
+    if (textToSpeech != null) {
+      textToSpeech.stop();
+      textToSpeech.shutdown();
+    }
+
+    super.onPause();
+  }
+
+  protected void toSpeech(List<Detector.Recognition> recognitions) {
+    if (recognitions.isEmpty() || textToSpeech.isSpeaking()) {
+      currentRecognitions = Collections.emptyList();
+      return;
+    }
+
+    if (currentRecognitions != null) {
+
+      // Ignore if current and new are same.
+      if (currentRecognitions.equals(recognitions)) {
+        return;
+      }
+      final Set<Detector.Recognition> intersection = new HashSet<>(recognitions);
+      intersection.retainAll(currentRecognitions);
+
+      // Ignore if new is sub set of the current
+      if (intersection.equals(recognitions)) {
+        return;
+      }
+    }
+
+    currentRecognitions = recognitions;
+
+    speak();
+  }
+
+  private void speak() {
+
+    final double rightStart = previewWidth / 2 - 0.10 * previewWidth;
+    final double rightFinish = previewWidth;
+    final double letStart = 0;
+    final double leftFinish = previewWidth / 2 + 0.10 * previewWidth;
+    final double previewArea = previewWidth * previewHeight;
+
+    StringBuilder stringBuilder = new StringBuilder();
+
+    for (int i = 0; i < currentRecognitions.size(); i++) {
+      Detector.Recognition recognition = currentRecognitions.get(i);
+      stringBuilder.append(recognition.getTitle());
+
+      float start = recognition.getLocation().top;
+      float end = recognition.getLocation().bottom;
+      double objArea = recognition.getLocation().width() * recognition.getLocation().height();
+
+      if (objArea > previewArea / 2) {
+        stringBuilder.append(" in front of you ");
+      } else {
+
+
+        if (start > letStart && end < leftFinish) {
+          stringBuilder.append(" on the right ");
+        } else if (start > rightStart && end < rightFinish) {
+          stringBuilder.append(" on the left ");
+        } else {
+          stringBuilder.append(" in front of you ");
+        }
+      }
+
+      if (i + 1 < currentRecognitions.size()) {
+        stringBuilder.append(" and ");
+      }
+    }
+    stringBuilder.append(" detected.");
+
+    textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null);
   }
 
   protected void showFrameInfo(String frameInfo) {
