@@ -610,7 +610,7 @@ public abstract class CameraActivity extends AppCompatActivity
     }
     stringBuilder.append(" detected.");
 
-    textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null);
+    textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null, null);
   }
 
   protected void showFrameInfo(String frameInfo) {

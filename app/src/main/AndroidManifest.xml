@@ -21,6 +21,8 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:hardwareAccelerated="false"
+        android:largeHeap="true"
         android:theme="@style/AppTheme.ObjectDetection">
         <activity android:name=".OnDeviceActivity"></activity>
         <activity android:name=".CaptureActivity" />

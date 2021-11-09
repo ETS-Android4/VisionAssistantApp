@@ -12,6 +12,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.Toast;
@@ -34,12 +35,16 @@ import com.app.miniproject.iiita.visionassistant.tflite.TFLiteObjectDetectionAPI
 import com.app.miniproject.iiita.visionassistant.tracking.MultiBoxTracker;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
 
-    public static final int TF_OD_API_INPUT_SIZE = 300;
+    public static final int TF_OD_API_INPUT_SIZE = 400;
+    // Minimum detection confidence to track a detection.
     private static final Float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final String TAG = "MyTag";
     private static final int CAMERA_PERMISSION_CODE = 101;
@@ -49,7 +54,6 @@ public class CaptureActivity extends AppCompatActivity {
     private static final boolean TF_OD_API_IS_QUANTIZED = false;
     private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
     private static final String TF_OD_API_LABELS_FILE = "labelmap.txt";
-    // Minimum detection confidence to track a detection.
     private static final boolean MAINTAIN_ASPECT = false;
     private final Integer sensorOrientation = 90;
     protected int previewWidth = 0;
@@ -64,7 +68,8 @@ public class CaptureActivity extends AppCompatActivity {
     private OverlayView trackingOverlay;
     private Bitmap croppedBitmap;
     private Detector detector;
-
+    private TextToSpeech textToSpeech;
+    private List<Detector.Recognition> currentRecognitions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,11 +136,23 @@ public class CaptureActivity extends AppCompatActivity {
                 });
             }).start();
         });
+
+        this.textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    LOGGER.i("onCreate", "TextToSpeech is initialised");
+                } else {
+                    LOGGER.e("onCreate", "Cannot initialise text to speech!");
+                }
+            }
+        });
     }
 
     private void handleResult(Bitmap croppedBitmap, List<Detector.Recognition> results) {
         final Canvas canvas = new Canvas(croppedBitmap);
         final Paint paint = new Paint();
+        cropToFrameTransform = new Matrix();
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(2.0f);
@@ -149,15 +166,14 @@ public class CaptureActivity extends AppCompatActivity {
             final RectF location = result.getLocation();
             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
                 canvas.drawRect(location, paint);
-//                cropToFrameTransform.mapRect(location);
-//
-//                result.setLocation(location);
-//                mappedRecognitions.add(result);
+                objects += result.getTitle() + " " + result.getConfidence() + "\n";
+                cropToFrameTransform.mapRect(location);
+                result.setLocation(location);
+                mappedRecognitions.add(result);
             }
-            objects += result.getTitle() + " " + result.getConfidence() + "\n";
+
         }
-//        tracker.trackResults(mappedRecognitions, new Random().nextInt());
-//        trackingOverlay.postInvalidate();
+        toSpeech(mappedRecognitions);
         binding.inputImv.setImageBitmap(croppedBitmap);
         binding.resultTv.setText(objects);
     }
@@ -241,5 +257,82 @@ public class CaptureActivity extends AppCompatActivity {
                 Toast.makeText(this, "Write Storage Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    protected void toSpeech(List<Detector.Recognition> recognitions) {
+        if (recognitions.isEmpty() || textToSpeech.isSpeaking()) {
+            currentRecognitions = Collections.emptyList();
+            return;
+        }
+
+        if (currentRecognitions != null) {
+
+            // Ignore if current and new are same.
+            if (currentRecognitions.equals(recognitions)) {
+                return;
+            }
+            final Set<Detector.Recognition> intersection = new HashSet<>(recognitions);
+            intersection.retainAll(currentRecognitions);
+
+            // Ignore if new is sub set of the current
+            if (intersection.equals(recognitions)) {
+                return;
+            }
+        }
+
+        currentRecognitions = recognitions;
+
+        speak();
+    }
+
+    private void speak() {
+
+        final double rightStart = previewWidth / 2 - 0.10 * previewWidth;
+        final double rightFinish = previewWidth;
+        final double letStart = 0;
+        final double leftFinish = previewWidth / 2 + 0.10 * previewWidth;
+        final double previewArea = previewWidth * previewHeight;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < currentRecognitions.size(); i++) {
+            Detector.Recognition recognition = currentRecognitions.get(i);
+            stringBuilder.append(recognition.getTitle());
+
+            float start = recognition.getLocation().top;
+            float end = recognition.getLocation().bottom;
+            double objArea = recognition.getLocation().width() * recognition.getLocation().height();
+
+            if (objArea > previewArea / 2) {
+                stringBuilder.append(" in front of you ");
+            } else {
+
+
+                if (start > letStart && end < leftFinish) {
+                    stringBuilder.append(" on the right ");
+                } else if (start > rightStart && end < rightFinish) {
+                    stringBuilder.append(" on the left ");
+                } else {
+                    stringBuilder.append(" in front of you ");
+                }
+            }
+
+            if (i + 1 < currentRecognitions.size()) {
+                stringBuilder.append(" and ");
+            }
+        }
+        stringBuilder.append(" detected.");
+
+        textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
     }
 }
