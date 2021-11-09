@@ -26,6 +26,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.objects.DetectedObject;
 import com.google.mlkit.vision.objects.ObjectDetection;
@@ -44,12 +46,13 @@ import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions;
 import com.google.mlkit.vision.objects.defaults.PredefinedCategory;
 
 import java.util.List;
+import java.util.Locale;
 
 public class OnDeviceActivity extends AppCompatActivity {
 
     public TextView showImageDetail;
     public ImageView showImage;
-    public Button chooseImageBtn,showDetailBtn;
+    public MaterialButton chooseImageBtn;
     private static final String TAG = "MyTag";
     private static final int CAMERA_PERMISSION_CODE=101;
     private static final int READ_STORAGE_PERMISSION_CODE=102;
@@ -59,14 +62,25 @@ public class OnDeviceActivity extends AppCompatActivity {
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     public String name="",getConfi="";
     public Bitmap finalBitmap;
+    public TextToSpeech textToSpeech;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_on_device);
 
         showImage = (ImageView) findViewById(R.id.picImage);
-        chooseImageBtn = (Button) findViewById(R.id.choosePicBtn);
-        showImageDetail =  (TextView) findViewById(R.id.showImage);
+        chooseImageBtn = (MaterialButton) findViewById(R.id.choosePicBtn);
+        showImageDetail =  (TextView) findViewById(R.id.result_tv);
+
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i== TextToSpeech.SUCCESS){
+                    int lang = textToSpeech.setLanguage(Locale.ENGLISH);
+                }
+            }
+        });
 
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             Intent data = result.getData();
@@ -200,6 +214,8 @@ public class OnDeviceActivity extends AppCompatActivity {
 
                                         canvas.drawRoundRect(new RectF(boundingBox), 2, 2, paint);
                                         showImage.setImageDrawable(new BitmapDrawable(getResources(),tempBitmap));
+                                        String s = name;
+                                        int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH,null);
                                     }
 
                                 }
