@@ -208,7 +208,7 @@ public class OnDeviceActivity extends AppCompatActivity {
 
                                         //Paint paint2=new Paint();
                                         paint.setTextSize(10);
-                                        canvas.drawText(name, boundingBox.left, boundingBox.top+10, paint);
+                                        canvas.drawText(name+"  "+getConfi, boundingBox.left, boundingBox.top+10, paint);
 
 
                                         canvas.drawRoundRect(new RectF(boundingBox), 2, 2, paint);
