@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.streamMb.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, DetectorActivity.class)));
         binding.captureMb.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, CaptureActivity.class)));
+        binding.onDevice.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, OnDeviceActivity.class)));
         CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
                 .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
                 .build();
