@@ -18,7 +18,6 @@
 
     <application
         android:allowBackup="false"
-        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/tfe_od_app_name"
         android:largeHeap="true"

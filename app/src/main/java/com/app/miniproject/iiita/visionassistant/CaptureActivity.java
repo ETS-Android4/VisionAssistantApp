@@ -36,6 +36,7 @@ import com.app.miniproject.iiita.visionassistant.tracking.MultiBoxTracker;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +44,7 @@ import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
 
-    public static final int TF_OD_API_INPUT_SIZE = 480;
+    public static final int TF_OD_API_INPUT_SIZE = 540;
     // Minimum detection confidence to track a detection.
     private static final Float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final String TAG = "MyTag";
@@ -70,6 +71,10 @@ public class CaptureActivity extends AppCompatActivity {
     private Detector detector;
     private TextToSpeech textToSpeech;
     private List<Detector.Recognition> currentRecognitions;
+
+    private final HashMap<String, Integer> colorMap = new HashMap<String, Integer>() {{
+        put("person", Color.parseColor("#0048BA"));
+    }};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +160,7 @@ public class CaptureActivity extends AppCompatActivity {
         cropToFrameTransform = new Matrix();
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(2.0f);
+        paint.setStrokeWidth(1.0f);
 
         String objects = "";
 

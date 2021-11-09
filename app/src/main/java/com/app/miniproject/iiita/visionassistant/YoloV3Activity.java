@@ -28,7 +28,6 @@ public class YoloV3Activity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.streamMb.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, DetectorActivity.class)));
         binding.captureMb.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, CaptureActivity.class)));
-        binding.onDevice.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, OnDeviceActivity.class)));
         CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
                 .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
                 .build();
