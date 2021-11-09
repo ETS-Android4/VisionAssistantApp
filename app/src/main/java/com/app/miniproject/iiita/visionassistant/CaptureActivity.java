@@ -140,6 +140,8 @@ public class CaptureActivity extends AppCompatActivity {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(2.0f);
 
+        String objects = "";
+
         final List<Detector.Recognition> mappedRecognitions =
                 new LinkedList<Detector.Recognition>();
 
@@ -152,10 +154,12 @@ public class CaptureActivity extends AppCompatActivity {
 //                result.setLocation(location);
 //                mappedRecognitions.add(result);
             }
+            objects += result.getTitle() + " " + result.getConfidence() + "\n";
         }
 //        tracker.trackResults(mappedRecognitions, new Random().nextInt());
 //        trackingOverlay.postInvalidate();
         binding.inputImv.setImageBitmap(croppedBitmap);
+        binding.resultTv.setText(objects);
     }
 
     private void createModel() {

@@ -70,10 +70,11 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.0'
 
-    implementation platform('com.google.firebase:firebase-bom:28.4.1')
-
+    implementation platform('com.google.firebase:firebase-bom:29.0.0')
     // Declare the dependency for the Firebase ML model downloader library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-ml-modeldownloader'
 
 }
+
+apply plugin: 'com.google.gms.google-services'
