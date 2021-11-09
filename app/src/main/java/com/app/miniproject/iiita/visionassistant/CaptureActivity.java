@@ -166,7 +166,7 @@ public class CaptureActivity extends AppCompatActivity {
             final RectF location = result.getLocation();
             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
                 paint.setTextSize(10);
-                canvas.drawText(result.getTitle(), location.left, location.top+10, paint);
+                canvas.drawText(result.getTitle()+"  "+result.getConfidence(), location.left, location.top+10, paint);
                 canvas.drawRect(location, paint);
                 objects += result.getTitle() + " " + result.getConfidence() + "\n";
                 cropToFrameTransform.mapRect(location);
