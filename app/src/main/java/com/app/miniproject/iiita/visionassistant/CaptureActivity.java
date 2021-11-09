@@ -43,7 +43,7 @@ import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
 
-    public static final int TF_OD_API_INPUT_SIZE = 400;
+    public static final int TF_OD_API_INPUT_SIZE = 480;
     // Minimum detection confidence to track a detection.
     private static final Float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final String TAG = "MyTag";

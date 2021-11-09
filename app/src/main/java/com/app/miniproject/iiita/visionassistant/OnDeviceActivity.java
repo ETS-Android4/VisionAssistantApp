@@ -1,14 +1,5 @@
 package com.app.miniproject.iiita.visionassistant;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,10 +21,18 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -69,14 +68,14 @@ public class OnDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_on_device);
 
-        showImage = (ImageView) findViewById(R.id.picImage);
-        chooseImageBtn = (MaterialButton) findViewById(R.id.choosePicBtn);
-        showImageDetail =  (TextView) findViewById(R.id.result_tv);
+        showImage = findViewById(R.id.picImage);
+        chooseImageBtn = findViewById(R.id.choosePicBtn);
+        showImageDetail = findViewById(R.id.result_tv);
 
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                if (i== TextToSpeech.SUCCESS){
+                if (i == TextToSpeech.SUCCESS) {
                     int lang = textToSpeech.setLanguage(Locale.ENGLISH);
                 }
             }
@@ -139,7 +138,7 @@ public class OnDeviceActivity extends AppCompatActivity {
 
 
         ObjectDetector objectDetector = ObjectDetection.getClient(options);
-//        getRotationCompensation(null,MainActivity.this,true);
+//        getRotationCompensation(null,YoloV3Activity.this,true);
         InputImage image = InputImage.fromBitmap(pic, 0);
 
         objectDetector.process(image)
@@ -194,13 +193,13 @@ public class OnDeviceActivity extends AppCompatActivity {
                                         }
                                         float confidence = label.getConfidence();
                                         int confidentInt = (int) (confidence * 100);
-                                        getConfi = Integer.toString(confidentInt)+"%";
-                                        //Draw element = new Draw(MainActivity.this, boundingBox, name, getConfi);
-                                        showImageDetail.setText(name+" "+getConfi+"\n");
+                                        getConfi = confidentInt + "%";
+                                        //Draw element = new Draw(YoloV3Activity.this, boundingBox, name, getConfi);
+                                        showImageDetail.setText(name + " " + getConfi + "\n");
 
-                                        Bitmap tempBitmap = Bitmap.createBitmap(pic.getWidth(),pic.getHeight(), Bitmap.Config.RGB_565);
+                                        Bitmap tempBitmap = Bitmap.createBitmap(pic.getWidth(), pic.getHeight(), Bitmap.Config.RGB_565);
                                         Canvas canvas = new Canvas(tempBitmap);
-                                        canvas.drawBitmap(pic,0,0,null);
+                                        canvas.drawBitmap(pic, 0, 0, null);
 
                                         Paint paint = new Paint();
                                         paint.setColor(Color.YELLOW);

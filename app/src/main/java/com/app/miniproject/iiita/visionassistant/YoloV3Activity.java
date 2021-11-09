@@ -8,7 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.app.miniproject.iiita.visionassistant.databinding.ActivityMainBinding;
+import com.app.miniproject.iiita.visionassistant.databinding.ActivityYoloV3Binding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
@@ -17,18 +17,18 @@ import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
-    ActivityMainBinding binding;
+public class YoloV3Activity extends AppCompatActivity {
+    ActivityYoloV3Binding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
-        binding = ActivityMainBinding.inflate(LayoutInflater.from(this));
+        binding = ActivityYoloV3Binding.inflate(LayoutInflater.from(this));
         setContentView(binding.getRoot());
-        binding.streamMb.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, DetectorActivity.class)));
-        binding.captureMb.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, CaptureActivity.class)));
-        binding.onDevice.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, OnDeviceActivity.class)));
+        binding.streamMb.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, DetectorActivity.class)));
+        binding.captureMb.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, CaptureActivity.class)));
+        binding.onDevice.setOnClickListener(view -> startActivity(new Intent(YoloV3Activity.this, OnDeviceActivity.class)));
         CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
                 .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
                 .build();
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 .getModel("Object-Detector", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
                 .addOnSuccessListener(model -> {
 
-                    Toast.makeText(MainActivity.this, "Model Downloaded Successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(YoloV3Activity.this, "Model Downloaded Successfully!", Toast.LENGTH_SHORT).show();
 
                     // Download complete. Depending on your app, you could enable the ML
                     // feature, or switch from the local model to the remote model, etc.
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "Oops!! Model Downloaded Unsuccessful!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(YoloV3Activity.this, "Oops!! Model Downloaded Unsuccessful!", Toast.LENGTH_SHORT).show();
             }
         });
     }
