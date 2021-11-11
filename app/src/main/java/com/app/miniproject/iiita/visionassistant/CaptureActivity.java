@@ -74,6 +74,90 @@ public class CaptureActivity extends AppCompatActivity {
 
     private final HashMap<String, Integer> colorMap = new HashMap<String, Integer>() {{
         put("person", Color.parseColor("#0048BA"));
+        put("bicycle", Color.parseColor("#B0BF1A"));
+        put("car", Color.parseColor("#7CB9E8"));
+        put("motorcycle", Color.parseColor("#C0E8D5"));
+        put("airplane", Color.parseColor("#B284BE"));
+        put("bus", Color.parseColor("#72A0C1"));
+        put("train", Color.parseColor("#EDEAE0"));
+        put("truck", Color.parseColor("#C46210"));
+        put("boat", Color.parseColor("#EFDECD"));
+        put("traffic light", Color.parseColor("#E52B50"));
+        put("fire hydrant", Color.parseColor("#9F2B68"));
+        put("???", Color.parseColor("#F19CBB"));
+        put("stop sign", Color.parseColor("#AB274F"));
+        put("parking meter", Color.parseColor("#D3212D"));
+        put("bench", Color.parseColor("#3B7A57"));
+        put("bird", Color.parseColor("#3B7A57"));
+        put("cat", Color.parseColor("#3B7A57"));
+        put("dog", Color.parseColor("#3B7A57"));
+        put("horse", Color.parseColor("#3B7A57"));
+
+        put("sheep", Color.parseColor("#FFBF00"));
+        put("cow", Color.parseColor("#FF7E00"));
+        put("elephant", Color.parseColor("#9966CC"));
+        put("bear", Color.parseColor("#3DDC84"));
+        put("zebra", Color.parseColor("#CD9575"));
+        put("giraffe", Color.parseColor("#665D1E"));
+        put("backpack", Color.parseColor("#915C83"));
+        put("umbrella", Color.parseColor("#841B2D"));
+        put("handbag", Color.parseColor("#FAEBD7"));
+        put("tie", Color.parseColor("#008000"));
+        put("suitcase", Color.parseColor("#8DB600"));
+        put("frisbee", Color.parseColor("#FBCEB1"));
+        put("skis", Color.parseColor("#00FFFF"));
+        put("snowboard", Color.parseColor("#7FFFD4"));
+        put("sports ball", Color.parseColor("#D0FF14"));
+        put("kite", Color.parseColor("#4B5320"));
+        put("baseball bat", Color.parseColor("#8F9779"));
+        put("baseball glove", Color.parseColor("#E9D66B"));
+        put("skateboard", Color.parseColor("#B2BEB5"));
+//
+        put("surfboard", Color.parseColor("#87A96B"));
+        put("tennis racket", Color.parseColor("#FF9966"));
+        put("bottle", Color.parseColor("#A52A2A"));
+        put("wine glass", Color.parseColor("#FDEE00"));
+        put("cup", Color.parseColor("#568203"));
+        put("fork", Color.parseColor("#007FFF"));
+        put("knife", Color.parseColor("#F0FFFF"));
+        put("spoon", Color.parseColor("#89CFF0"));
+        put("bowl", Color.parseColor("#A1CAF1"));
+        put("banana", Color.parseColor("#F4C2C2"));
+        put("apple", Color.parseColor("#FEFEFA"));
+        put("sandwich", Color.parseColor("#FF91AF"));
+        put("orange", Color.parseColor("#FAE7B5"));
+        put("carrot", Color.parseColor("#DA1884"));
+        put("broccoli", Color.parseColor("#7C0A02"));
+        put("hot dog", Color.parseColor("#848482"));
+        put("pizza", Color.parseColor("#BCD4E6"));
+        put("donut", Color.parseColor("#9F8170"));
+        put("cake", Color.parseColor("#F5F5DC"));
+
+        put("couch", Color.parseColor("#D70040"));
+        put("potted plant", Color.parseColor("#FFA6C9"));
+        put("bed", Color.parseColor("#00563F"));
+        put("dining table", Color.parseColor("#C95A49"));
+        put("toilet", Color.parseColor("#ACE1AF"));
+        put("tv", Color.parseColor("#007BA7"));
+        put("laptop", Color.parseColor("#2F847C"));
+        put("mouse", Color.parseColor("#B2FFFF"));
+        put("remote", Color.parseColor("#246BCE"));
+        put("keyboard", Color.parseColor("#DE3163"));
+        put("cell phone", Color.parseColor("#007BA7"));
+        put("microwave", Color.parseColor("#2A52BE"));
+        put("oven", Color.parseColor("#6D9BC3"));
+        put("toaster", Color.parseColor("#1DACD6"));
+        put("sink", Color.parseColor("#007AA5"));
+        put("refrigerator", Color.parseColor("#E03C31"));
+        put("book", Color.parseColor("#DE6FA1"));
+        put("clock", Color.parseColor("#FFB200"));
+        put("vase", Color.parseColor("#D2691E"));
+
+        put("scissors", Color.parseColor("#9FA91F"));
+        put("teddy bear", Color.parseColor("#0047AB"));
+        put("hair drier", Color.parseColor("#FFD300"));
+        put("toothbrush", Color.parseColor("#666699"));
+
     }};
 
     @Override
