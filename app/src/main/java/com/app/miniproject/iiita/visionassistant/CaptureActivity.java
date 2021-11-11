@@ -112,7 +112,6 @@ public class CaptureActivity extends AppCompatActivity {
         put("baseball bat", Color.parseColor("#8F9779"));
         put("baseball glove", Color.parseColor("#E9D66B"));
         put("skateboard", Color.parseColor("#B2BEB5"));
-//
         put("surfboard", Color.parseColor("#87A96B"));
         put("tennis racket", Color.parseColor("#FF9966"));
         put("bottle", Color.parseColor("#A52A2A"));
