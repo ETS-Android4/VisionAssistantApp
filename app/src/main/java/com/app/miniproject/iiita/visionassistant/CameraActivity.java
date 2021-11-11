@@ -245,6 +245,7 @@ public abstract class CameraActivity extends AppCompatActivity
     this.textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
       @Override
       public void onInit(int status) {
+        textToSpeech.setSpeechRate(0.8f);
         if (status == TextToSpeech.SUCCESS) {
           LOGGER.i("onCreate", "TextToSpeech is initialised");
         } else {

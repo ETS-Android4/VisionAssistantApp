@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
@@ -73,9 +74,9 @@ public class CaptureActivity extends AppCompatActivity {
     private List<Detector.Recognition> currentRecognitions;
 
     private final HashMap<String, Integer> colorMap = new HashMap<String, Integer>() {{
-        put("person", Color.parseColor("#0048BA"));
+        put("person", Color.RED);
         put("bicycle", Color.parseColor("#B0BF1A"));
-        put("car", Color.parseColor("#7CB9E8"));
+        put("car", Color.YELLOW);
         put("motorcycle", Color.parseColor("#C0E8D5"));
         put("airplane", Color.parseColor("#B284BE"));
         put("bus", Color.parseColor("#72A0C1"));
@@ -229,6 +230,8 @@ public class CaptureActivity extends AppCompatActivity {
             @Override
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
+                    textToSpeech.setLanguage(Locale.ENGLISH);
+                    textToSpeech.setSpeechRate(0.8f);
                     LOGGER.i("onCreate", "TextToSpeech is initialised");
                 } else {
                     LOGGER.e("onCreate", "Cannot initialise text to speech!");
@@ -241,9 +244,8 @@ public class CaptureActivity extends AppCompatActivity {
         final Canvas canvas = new Canvas(croppedBitmap);
         final Paint paint = new Paint();
         cropToFrameTransform = new Matrix();
-        paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1.0f);
+        paint.setStrokeWidth(2.0f);
 
         String objects = "";
 
@@ -253,8 +255,17 @@ public class CaptureActivity extends AppCompatActivity {
         for (final Detector.Recognition result : results) {
             final RectF location = result.getLocation();
             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
-                paint.setTextSize(10);
-                canvas.drawText(result.getTitle()+"  "+result.getConfidence(), location.left, location.top+10, paint);
+                paint.setTextSize(16);
+                if (colorMap.containsKey(result.getTitle())) {
+                    try {
+                        paint.setColor(colorMap.get(result.getTitle()));
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    paint.setColor(Color.RED);
+                }
+                canvas.drawText(result.getTitle() + "  " + result.getConfidence(), location.left, location.top + 10, paint);
                 canvas.drawRect(location, paint);
                 objects += result.getTitle() + " " + result.getConfidence() + "\n";
                 cropToFrameTransform.mapRect(location);
