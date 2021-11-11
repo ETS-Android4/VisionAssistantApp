@@ -45,7 +45,7 @@ import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
 
-    public static final int TF_OD_API_INPUT_SIZE = 540;
+    public static final int TF_OD_API_INPUT_SIZE = 1000;
     // Minimum detection confidence to track a detection.
     private static final Float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final String TAG = "MyTag";
@@ -56,7 +56,7 @@ public class CaptureActivity extends AppCompatActivity {
     private static final boolean TF_OD_API_IS_QUANTIZED = false;
     private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
     private static final String TF_OD_API_LABELS_FILE = "labelmap.txt";
-    private static final boolean MAINTAIN_ASPECT = false;
+    private static final boolean MAINTAIN_ASPECT = true;
     private final Integer sensorOrientation = 90;
     protected int previewWidth = 0;
     protected int previewHeight = 0;
@@ -211,19 +211,23 @@ public class CaptureActivity extends AppCompatActivity {
 
 
         binding.detectMb.setOnClickListener(view -> {
-            croppedBitmap = Utils.processBitmap(sourceBitmap, TF_OD_API_INPUT_SIZE);
-            createModel();
-            Handler handler = new Handler();
+            if (sourceBitmap == null) {
+                Toast.makeText(this, "Please select an Image First!!", Toast.LENGTH_SHORT).show();
+            } else {
+                croppedBitmap = Utils.processBitmap(sourceBitmap, TF_OD_API_INPUT_SIZE);
+                createModel();
+                Handler handler = new Handler();
 
-            new Thread(() -> {
-                final List<Detector.Recognition> results = detector.recognizeImage(croppedBitmap);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        handleResult(croppedBitmap, results);
-                    }
-                });
-            }).start();
+                new Thread(() -> {
+                    final List<Detector.Recognition> results = detector.recognizeImage(croppedBitmap);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleResult(croppedBitmap, results);
+                        }
+                    });
+                }).start();
+            }
         });
 
         this.textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -268,7 +272,6 @@ public class CaptureActivity extends AppCompatActivity {
                 canvas.drawText(result.getTitle() + "  " + result.getConfidence(), location.left, location.top + 10, paint);
                 canvas.drawRect(location, paint);
                 objects += result.getTitle() + " " + result.getConfidence() + "\n";
-                cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
                 mappedRecognitions.add(result);
             }
