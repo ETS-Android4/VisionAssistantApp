@@ -3,7 +3,6 @@ package com.app.miniproject.iiita.visionassistant;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -35,30 +33,35 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityWelcomeBinding.inflate(LayoutInflater.from(this));
         setContentView(binding.getRoot());
-
-        if (getConnectivityStatusString(this)!=null){
+        String status = getConnectivityStatusString(this);
+        if (status != null) {
             fun();
-            Toast.makeText(WelcomeActivity.this, "Network connection is available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WelcomeActivity.this, status, Toast.LENGTH_SHORT).show();
 
-        } else{
+        } else {
             final AlertDialog dialog = new AlertDialog.Builder(WelcomeActivity.this)
                     .setTitle("Warning").setMessage("Check your data or wi-fi connectivity")
                     .setPositiveButton("Retry", null)
                     .create();
+
+            dialog.setCanceledOnTouchOutside(false);
 
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
 
-                    Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                    Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                     button.setOnClickListener(new View.OnClickListener() {
 
                         @Override
                         public void onClick(View view) {
-                            if(getConnectivityStatusString(WelcomeActivity.this)!=null){
+                            if (getConnectivityStatusString(WelcomeActivity.this) != null) {
                                 dialog.dismiss();
+                                Toast.makeText(WelcomeActivity.this, status, Toast.LENGTH_SHORT).show();
                                 fun();
+                            } else {
+                                Toast.makeText(WelcomeActivity.this, "Please Check Again!!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -101,7 +104,6 @@ public class WelcomeActivity extends AppCompatActivity {
                     String s = "Welcome to Vision Assistant, For YoloV3 Model Object Detection, press Left Button, and for" +
                             "Firebase On-Device Model Object Detection press Right Button";
                     int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
-                    Toast.makeText(WelcomeActivity.this, "Speak Success!! Welcome", Toast.LENGTH_SHORT).show();
                 }
             }
         }, "com.google.android.tts");
