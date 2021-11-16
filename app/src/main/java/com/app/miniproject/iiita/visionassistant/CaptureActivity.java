@@ -45,7 +45,7 @@ import java.util.Set;
 
 public class CaptureActivity extends AppCompatActivity {
 
-    public static final int TF_OD_API_INPUT_SIZE = 1000;
+    public static final int TF_OD_API_INPUT_SIZE = 720;
     // Minimum detection confidence to track a detection.
     private static final Float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final String TAG = "MyTag";
@@ -160,6 +160,7 @@ public class CaptureActivity extends AppCompatActivity {
 
     }};
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,6 +245,7 @@ public class CaptureActivity extends AppCompatActivity {
         });
     }
 
+
     private void handleResult(Bitmap croppedBitmap, List<Detector.Recognition> results) {
         final Canvas canvas = new Canvas(croppedBitmap);
         final Paint paint = new Paint();
@@ -259,7 +261,7 @@ public class CaptureActivity extends AppCompatActivity {
         for (final Detector.Recognition result : results) {
             final RectF location = result.getLocation();
             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
-                paint.setTextSize(16);
+                paint.setTextSize(20);
                 if (colorMap.containsKey(result.getTitle())) {
                     try {
                         paint.setColor(colorMap.get(result.getTitle()));
@@ -403,8 +405,8 @@ public class CaptureActivity extends AppCompatActivity {
             Detector.Recognition recognition = currentRecognitions.get(i);
             stringBuilder.append(recognition.getTitle());
 
-            float start = recognition.getLocation().top;
-            float end = recognition.getLocation().bottom;
+            float start = recognition.getLocation().left;
+            float end = recognition.getLocation().right;
             double objArea = recognition.getLocation().width() * recognition.getLocation().height();
 
             if (objArea > previewArea / 2) {
@@ -413,9 +415,9 @@ public class CaptureActivity extends AppCompatActivity {
 
 
                 if (start > letStart && end < leftFinish) {
-                    stringBuilder.append(" on the right ");
-                } else if (start > rightStart && end < rightFinish) {
                     stringBuilder.append(" on the left ");
+                } else if (start > rightStart && end < rightFinish) {
+                    stringBuilder.append(" on the right ");
                 } else {
                     stringBuilder.append(" in front of you ");
                 }

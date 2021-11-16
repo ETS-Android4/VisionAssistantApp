@@ -587,8 +587,8 @@ public abstract class CameraActivity extends AppCompatActivity
       Detector.Recognition recognition = currentRecognitions.get(i);
       stringBuilder.append(recognition.getTitle());
 
-      float start = recognition.getLocation().top;
-      float end = recognition.getLocation().bottom;
+      float start = recognition.getLocation().left;
+      float end = recognition.getLocation().right;
       double objArea = recognition.getLocation().width() * recognition.getLocation().height();
 
       if (objArea > previewArea / 2) {
@@ -597,9 +597,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
 
         if (start > letStart && end < leftFinish) {
-          stringBuilder.append(" on the right ");
-        } else if (start > rightStart && end < rightFinish) {
           stringBuilder.append(" on the left ");
+        } else if (start > rightStart && end < rightFinish) {
+          stringBuilder.append(" on the right ");
         } else {
           stringBuilder.append(" in front of you ");
         }
