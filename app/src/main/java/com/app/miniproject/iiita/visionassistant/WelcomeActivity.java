@@ -1,7 +1,6 @@
 package com.app.miniproject.iiita.visionassistant;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,56 +23,99 @@ public class WelcomeActivity extends AppCompatActivity {
     private ActivityWelcomeBinding binding;
     public TextToSpeech textToSpeech;
     private final Handler handler = new Handler();
-    private Runnable myRunnable,myRunnable1,myRunnable2;
-    public String s="";
-
+    public String s = "";
+    private Runnable myRunnable, myRunnable1, myRunnable2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityWelcomeBinding.inflate(LayoutInflater.from(this));
         setContentView(binding.getRoot());
+
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i == TextToSpeech.SUCCESS) {
+                    int lang = textToSpeech.setLanguage(Locale.ENGLISH);
+                    textToSpeech.setSpeechRate(0.8f);
+                    checkInternet();
+                }
+            }
+        }, "com.google.android.tts");
+
+        binding.yoloV3Mb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getConnectivityStatusString(WelcomeActivity.this) == null) {
+                    checkInternet();
+                } else {
+                    Intent intent = new Intent(WelcomeActivity.this, YoloV3Activity.class);
+                    if (textToSpeech != null) {
+                        textToSpeech.stop();
+                    }
+                    startActivity(intent);
+                }
+            }
+        });
+        binding.fireMb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(WelcomeActivity.this, OnDeviceActivity.class);
+                if (textToSpeech != null) {
+                    textToSpeech.stop();
+                }
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        checkInternet();
+    }
+
+    void checkInternet() {
         String status = getConnectivityStatusString(this);
         if (status != null) {
-            fun();
+            String s = "Welcome to Vision Assistant, For YoloV3 Model Object Detection, press Left Button, and for" +
+                    "Firebase On-Device Model Object Detection press Right Button";
+            int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
             Toast.makeText(WelcomeActivity.this, status, Toast.LENGTH_SHORT).show();
 
         } else {
             final AlertDialog dialog = new AlertDialog.Builder(WelcomeActivity.this)
-                    .setTitle("Warning").setMessage("Check your data or wi-fi connectivity")
+                    .setTitle("Warning").setMessage("Check your Mobile data or wi-fi connectivity")
                     .setPositiveButton("Retry", null)
                     .create();
 
+            String s = "Check your Mobile data or wi-fi connectivity";
+            int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
+
             dialog.setCanceledOnTouchOutside(false);
 
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            dialog.setOnShowListener(dialogInterface -> {
 
-                @Override
-                public void onShow(DialogInterface dialogInterface) {
+                Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
 
-                    Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    button.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View view) {
-                            if (getConnectivityStatusString(WelcomeActivity.this) != null) {
-                                dialog.dismiss();
-                                Toast.makeText(WelcomeActivity.this, status, Toast.LENGTH_SHORT).show();
-                                fun();
-                            } else {
-                                Toast.makeText(WelcomeActivity.this, "Please Check Again!!", Toast.LENGTH_SHORT).show();
-                            }
+                    @Override
+                    public void onClick(View view) {
+                        String net = getConnectivityStatusString(WelcomeActivity.this);
+                        if (net != null) {
+                            dialog.dismiss();
+                            Toast.makeText(WelcomeActivity.this, net, Toast.LENGTH_SHORT).show();
+                            int speech = textToSpeech.speak(net, TextToSpeech.QUEUE_FLUSH, null, null);
+                        } else {
+                            Toast.makeText(WelcomeActivity.this, "Please Check Again!!", Toast.LENGTH_SHORT).show();
+                            String s = "Please Check Again!!";
+                            int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
                         }
-                    });
-                }
+                    }
+                });
             });
             dialog.show();
-
         }
-
-
-
-
     }
 
     public static String getConnectivityStatusString(Context context) {
@@ -93,41 +135,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
 
-
-    public void fun(){
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                if (i == TextToSpeech.SUCCESS) {
-                    int lang = textToSpeech.setLanguage(Locale.ENGLISH);
-                    textToSpeech.setSpeechRate(0.8f);
-                    String s = "Welcome to Vision Assistant, For YoloV3 Model Object Detection, press Left Button, and for" +
-                            "Firebase On-Device Model Object Detection press Right Button";
-                    int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
-                }
-            }
-        }, "com.google.android.tts");
-
-        binding.yoloV3Mb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(WelcomeActivity.this,YoloV3Activity.class);
-                if (textToSpeech != null) {
-                    textToSpeech.stop();
-                }
-                startActivity(intent);
-            }
-        });
-        binding.fireMb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(WelcomeActivity.this,OnDeviceActivity.class);
-                if (textToSpeech != null) {
-                    textToSpeech.stop();
-                }
-                startActivity(intent);
-            }
-        });
+    public void Speak() {
     }
 
     @Override
