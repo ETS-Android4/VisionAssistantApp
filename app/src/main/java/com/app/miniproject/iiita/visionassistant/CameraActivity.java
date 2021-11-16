@@ -539,10 +539,10 @@ public abstract class CameraActivity extends AppCompatActivity
       LOGGER.e(e, "Exception!");
     }
 
-    if (textToSpeech != null) {
-      textToSpeech.stop();
-      textToSpeech.shutdown();
-    }
+//    if (textToSpeech != null) {
+//      textToSpeech.stop();
+//      textToSpeech.shutdown();
+//    }
 
     super.onPause();
   }
