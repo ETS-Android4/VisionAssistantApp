@@ -202,9 +202,9 @@ public class OnDeviceActivity extends AppCompatActivity {
                                         canvas.drawBitmap(pic, 0, 0, null);
 
                                         Paint paint = new Paint();
-                                        paint.setColor(Color.YELLOW);
+                                        paint.setColor(Color.RED);
                                         paint.setStyle(Paint.Style.STROKE);
-                                        paint.setStrokeWidth(1);
+                                        paint.setStrokeWidth(2);
 
                                         //Paint paint2=new Paint();
                                         paint.setTextSize(10);
