@@ -57,16 +57,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
-        binding.fireMb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(WelcomeActivity.this, OnDeviceActivity.class);
-                if (textToSpeech != null) {
-                    textToSpeech.stop();
-                }
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -78,8 +68,7 @@ public class WelcomeActivity extends AppCompatActivity {
     void checkInternet() {
         String status = getConnectivityStatusString(this);
         if (status != null) {
-            String s = "Welcome to Vision Assistant, For YoloV3 Model Object Detection, press Left Button, and for" +
-                    "Firebase On-Device Model Object Detection press Right Button";
+            String s = "Welcome to Vision Assistant, For YoloV3 Model Object Detection, press the Button";
             int speech = textToSpeech.speak(s, TextToSpeech.QUEUE_FLUSH, null, null);
             Toast.makeText(WelcomeActivity.this, status, Toast.LENGTH_SHORT).show();
 
