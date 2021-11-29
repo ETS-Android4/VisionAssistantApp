@@ -34,6 +34,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.view.Surface;
@@ -592,7 +594,15 @@ public abstract class CameraActivity extends AppCompatActivity
       double objArea = recognition.getLocation().width() * recognition.getLocation().height();
 
       if (objArea > previewArea / 2) {
-        stringBuilder.append(" in front of you ");
+        stringBuilder.append(" in front of you, Alert!!! Alert!!! Alert!!! you may Collide");
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+          //deprecated in API 26
+          v.vibrate(500);
+        }
       } else {
 
 
@@ -609,7 +619,6 @@ public abstract class CameraActivity extends AppCompatActivity
         stringBuilder.append(" and ");
       }
     }
-    stringBuilder.append(" detected.");
 
     textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null, null);
   }

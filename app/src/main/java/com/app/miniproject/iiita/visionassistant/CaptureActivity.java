@@ -1,6 +1,7 @@
 package com.app.miniproject.iiita.visionassistant;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,8 +10,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -410,7 +414,15 @@ public class CaptureActivity extends AppCompatActivity {
             double objArea = recognition.getLocation().width() * recognition.getLocation().height();
 
             if (objArea > previewArea / 2) {
-                stringBuilder.append(" in front of you ");
+                stringBuilder.append(" in front of you, Alert!!! Alert!!! Alert!!! you may Collide");
+                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                // Vibrate for 500 milliseconds
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    v.vibrate(500);
+                }
             } else {
 
 
@@ -427,7 +439,6 @@ public class CaptureActivity extends AppCompatActivity {
                 stringBuilder.append(" and ");
             }
         }
-        stringBuilder.append(" detected.");
 
         textToSpeech.speak(stringBuilder.toString(), TextToSpeech.QUEUE_FLUSH, null, null);
     }
